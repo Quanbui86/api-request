@@ -1,22 +1,51 @@
+import React, { useEffect } from 'react'
+import { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
 function App() {
+  const [json, setJson] = useState('')
+  useEffect(()=>{
+    generateJson()
+  },[])
+  const generateJson = async () => {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/users');
+      if(response.ok){
+        const jsonResponse = await response.json();
+        setJson(formatJson(jsonResponse))
+      }
+    } catch(error) {
+      console.log(error);
+    }
+  };
+  // Format returned promise data
+const formatJson = (resJson) => {
+  resJson = JSON.stringify(resJson);
+ let counter = 0;
+  return resJson.split('').map(char => {
+    switch (char) {
+      case ',':
+        return `,\n${' '.repeat(counter * 5)}`;
+      case '{':
+        counter += 1;
+        return `{\n${' '.repeat(counter * 5)}`;
+      case '}':
+        counter -= 1;
+        return `\n${' '.repeat(counter * 5)}}`;
+      default:
+        return char;
+    }
+  })
+  .join('');
+};
+  
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <pre>
+          {json}
+        </pre>
       </header>
     </div>
   );
